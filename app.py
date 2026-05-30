@@ -10,16 +10,23 @@ import folium
 from streamlit_folium import st_folium
 
 # --- GOOGLE FIREBASE ENTEGRASYONU ---
+# --- GÜVENLİ GOOGLE FIREBASE ENTEGRASYONU ---
+import json
+import streamlit as st
 import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import firestore
+from firebase_admin import credentials, firestore
 
 if not firebase_admin._apps:
     try:
-        cred = credentials.Certificate('firebase_key.json')
+        # Eğer Streamlit Cloud'daysa kasayı (secrets) oku, bilgisayardaysa dosyayı oku
+        if "FIREBASE_CREDENTIALS" in st.secrets:
+            key_dict = json.loads(st.secrets["FIREBASE_CREDENTIALS"])
+            cred = credentials.Certificate(key_dict)
+        else:
+            cred = credentials.Certificate('firebase_key.json')
         firebase_admin.initialize_app(cred)
     except Exception as e:
-        st.error(f"⚠️ Google Hizmet Anahtarı Okunamadı! firebase_key.json dosyasının doğru klasörde olduğundan emin olun. Hata: {e}")
+        st.error(f"⚠️ Bağlantı hatası: {e}")
 
 db = firestore.client()
 
