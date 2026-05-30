@@ -13,7 +13,24 @@ st.set_page_config(
     page_icon="logo.png",  # İşte telefonda ikon olacak görselimiz!
     layout="wide"
 )
-
+# --- TELEFON ANA EKRAN İKONU HACK'İ ---
+st.markdown(
+    '''
+    <img src="dummy" onerror="
+        var links = document.getElementsByTagName('link');
+        for(var i=0; i<links.length; i++) {
+            if(links[i].rel === 'apple-touch-icon') {
+                links[i].parentNode.removeChild(links[i]);
+            }
+        }
+        var newLink = document.createElement('link');
+        newLink.rel = 'apple-touch-icon';
+        newLink.href = 'https://raw.githubusercontent.com/kampgunluklerim/FishPro/main/logo.png';
+        document.head.appendChild(newLink);
+    " style="display:none;">
+    ''',
+    unsafe_allow_html=True
+)
 # --- GOOGLE FIREBASE ENTEGRASYONU ---
 # --- GÜVENLİ GOOGLE FIREBASE ENTEGRASYONU ---
 import json
