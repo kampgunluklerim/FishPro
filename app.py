@@ -8,6 +8,11 @@ import base64
 from streamlit_js_eval import streamlit_js_eval
 import folium
 from streamlit_folium import st_folium
+st.set_page_config(
+    page_title="FishPro",
+    page_icon="logo.png",  # İşte telefonda ikon olacak görselimiz!
+    layout="wide"
+)
 
 # --- GOOGLE FIREBASE ENTEGRASYONU ---
 # --- GÜVENLİ GOOGLE FIREBASE ENTEGRASYONU ---
