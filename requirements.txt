@@ -1,0 +1,7 @@
+streamlit
+pandas
+requests
+streamlit-js-eval
+folium
+streamlit-folium
+firebase-admin
