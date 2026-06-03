@@ -124,9 +124,10 @@ def get_weather_and_depth(lat, lon):
         pass
 
     # 2. Deniz ve Dalga Verisi (Saat dilimi İstanbul'a sabitlendi)
+    # 2. Deniz ve Dalga Verisi
     try:
-        mar_url = f"https://marine-api.open-meteo.com/v1/marine?latitude={lat}&longitude={lon}&hourly=wave_height,water_temperature&timezone=Europe%2FIstanbul"
-        mar_res = requests.get(mar_url, timeout=5).json()
+        mar_url = f"https://marine-api.open-meteo.com/v1/marine?latitude={lat}&longitude={lon}&hourly=wave_height&timezone=Europe%2FIstanbul"
+        mar_res = requests.get(mar_url, timeout=15).json()
     except:
         pass
 
@@ -352,7 +353,7 @@ if sol_data and 'hourly' in sol_data:
     st.markdown("""<div style="background-color: #e3f2fd; border-left: 6px solid #2e7d32; padding: 20px; border-radius: 10px; margin-top: 10px;"><h3 style="color: #1b5e20; margin-top: 0;">🌱 Sürdürülebilir Avcılık ve Geleceğimiz</h3><p style="color: #2e7d32; font-size: 16px; line-height: 1.6;"><b>"Küçük balık yoksa, büyük balık da yoktur."</b><br>Lütfen yasal limitlerin altındaki balıkları incitmeden suya iade edelim. Denizler ve göller sadece bizim değil; çocuklarımızın da kıyılarda takımlarıyla bu sporu yapabilmesi, o heyecanı yaşayabilmesi için vicdani limitlerimizi her zaman yasal limitlerin üstünde tutalım. Gittiğimiz kamp yerlerini ve meraları bulduğumuzdan çok daha temiz bırakalım. Unutmayın; en iyi avcı, doğaya en çok saygı duyandır! 🎣💙</p></div>""", unsafe_allow_html=True)
 
 else:
-    st.error(f"Veri Çekilemedi! API Yanıtları -> Hava: {sol_data} | Deniz: {mar_data}")
+    st.warning("☁️ Canlı hava durumu sunucularının günlük ücretsiz sorgu limiti geçici olarak dolmuştur. Oşinografi verileri gece yarısı güncellenecektir. Bu sırada harita, mera radarı ve av kaydetme özelliklerini sorunsuz kullanmaya devam edebilirsiniz! 🎣")
 st.sidebar.divider()
 if st.sidebar.button("Sistemden Çıkış"):
     st.session_state.logged_in = False
