@@ -269,7 +269,7 @@ if sol_data and 'hourly' in sol_data:
     s_ay_evresi, s_ay_aydinlik = get_moon_phase(datetime.now() + timedelta(hours=(secilen_endeks - current_hour)))
     
     s_dalga = mar_data['hourly']['wave_height'][secilen_endeks] if mar_data and 'hourly' in mar_data else 0.35
-s_su_sicaklik = mar_data['hourly']['water_temperature'][secilen_endeks] if mar_data and 'hourly' in mar_data and 'water_temperature' in mar_data['hourly'] else 16.0
+    s_su_sicaklik = mar_data['hourly']['water_temperature'][secilen_endeks] if mar_data and 'hourly' in mar_data and 'water_temperature' in mar_data['hourly'] else 16.0
     # 6 SÜTUNLU OŞİNOGRAFİ METRİKLERİ (GERÇEK BASINÇ VE SONAR DAHİL)
     met_col1, met_col2, met_col3, met_col4, met_col5, met_col6 = st.columns(6)
     met_col1.metric("💨 Rüzgar", f"{s_ruzgar:.1f} km/s", get_wind_desc(s_ruzgar_yon), delta_color="off")
