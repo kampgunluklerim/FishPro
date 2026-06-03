@@ -112,12 +112,11 @@ def get_wind_desc(deg):
     arr = ["Kuzey", "Poyraz (KD)", "Doğu", "Keşişleme (GD)", "Kıble (G)", "Lodos (GB)", "Batı", "Karayel (KB)"]
     return arr[int((deg / 45) + 0.5) % 8]
 
-@st.cache_data(ttl=900)
+@st.cache_data(ttl=3600)
 def get_weather_and_depth(lat, lon):
-   
-    sol_res, mar_res, depth = None, None, -15.0
+    lat = round(float(lat), 2)
+    lon = round(float(lon), 2)
     
-    # ... (Kodun geri kalanı aynı kalacak)
     sol_res, mar_res, depth = None, None, -15.0
 
     # 1. Hava Durumu Verisi (Saat dilimi İstanbul'a sabitlendi)
