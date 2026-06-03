@@ -114,12 +114,7 @@ def get_wind_desc(deg):
 
 @st.cache_data(ttl=900)
 def get_weather_and_depth(lat, lon):
-    @st.cache_data(ttl=3600) # Hafızada tutma süresini de 1 saate çıkaralım (900 yerine 3600 yap)
-def get_weather_and_depth(lat, lon):
-    # KUSURSUZ ÇÖZÜM: Koordinatları 1.1 km çapında yuvarlayıp sunucu bombardımanını engelliyoruz.
-    lat = round(float(lat), 2)
-    lon = round(float(lon), 2)
-    
+   
     sol_res, mar_res, depth = None, None, -15.0
     
     # ... (Kodun geri kalanı aynı kalacak)
