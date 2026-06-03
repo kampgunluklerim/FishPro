@@ -113,25 +113,24 @@ def get_wind_desc(deg):
     return arr[int((deg / 45) + 0.5) % 8]
 
 @st.cache_data(ttl=900)
-@st.cache_data(ttl=900)
 def get_weather_and_depth(lat, lon):
     sol_res, mar_res, depth = None, None, -15.0
 
-    # 1. Hava Durumu Verisi (Ayrı sepette korumaya alındı)
+    # 1. Hava Durumu Verisi (Saat dilimi İstanbul'a sabitlendi)
     try:
-        sol_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&daily=sunrise,sunset&hourly=surface_pressure,wind_speed_10m,wind_direction_10m,temperature_2m,cloudcover&timezone=auto"
+        sol_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&daily=sunrise,sunset&hourly=surface_pressure,wind_speed_10m,wind_direction_10m,temperature_2m,cloudcover&timezone=Europe%2FIstanbul"
         sol_res = requests.get(sol_url, timeout=5).json()
     except:
         pass
 
-    # 2. Deniz ve Dalga Verisi (Ayrı sepette korumaya alındı)
+    # 2. Deniz ve Dalga Verisi (Saat dilimi İstanbul'a sabitlendi)
     try:
-        mar_url = f"https://marine-api.open-meteo.com/v1/marine?latitude={lat}&longitude={lon}&hourly=wave_height,water_temperature&timezone=auto"
+        mar_url = f"https://marine-api.open-meteo.com/v1/marine?latitude={lat}&longitude={lon}&hourly=wave_height,water_temperature&timezone=Europe%2FIstanbul"
         mar_res = requests.get(mar_url, timeout=5).json()
     except:
         pass
 
-    # 3. Sonar Derinlik Verisi (Sık sık çöken asıl suçlu - Ayrı sepette)
+    # 3. Sonar Derinlik Verisi
     try:
         elev_url = f"https://api.opentopodata.org/v1/etopo1?locations={lat},{lon}"
         elev_res = requests.get(elev_url, timeout=3).json()
