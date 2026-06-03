@@ -113,27 +113,41 @@ def get_wind_desc(deg):
     return arr[int((deg / 45) + 0.5) % 8]
 
 @st.cache_data(ttl=900)
+@st.cache_data(ttl=900)
 def get_weather_and_depth(lat, lon):
+    sol_res, mar_res, depth = None, None, -15.0
+
+    # 1. Hava Durumu Verisi (Ayrı sepette korumaya alındı)
     try:
         sol_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&daily=sunrise,sunset&hourly=surface_pressure,wind_speed_10m,wind_direction_10m,temperature_2m,cloudcover&timezone=auto"
-        sol_res = requests.get(sol_url, timeout=4).json()
-        
+        sol_res = requests.get(sol_url, timeout=5).json()
+    except:
+        pass
+
+    # 2. Deniz ve Dalga Verisi (Ayrı sepette korumaya alındı)
+    try:
         mar_url = f"https://marine-api.open-meteo.com/v1/marine?latitude={lat}&longitude={lon}&hourly=wave_height,water_temperature&timezone=auto"
-        mar_res = requests.get(mar_url, timeout=2).json()
-        
-        # Sonar Derinlik Algılama (Uluslararası Topografya Uydusu)
+        mar_res = requests.get(mar_url, timeout=5).json()
+    except:
+        pass
+
+    # 3. Sonar Derinlik Verisi (Sık sık çöken asıl suçlu - Ayrı sepette)
+    try:
         elev_url = f"https://api.opentopodata.org/v1/etopo1?locations={lat},{lon}"
         elev_res = requests.get(elev_url, timeout=3).json()
         depth = elev_res['results'][0]['elevation'] if 'results' in elev_res else 0
-        
+    except:
+        depth = -15.0 # Çökerse sistemi bozma, varsayılan değer ata
+
+    # Deniz mi kara mı kontrolü
+    try:
         is_sea = (mar_res is not None and 'hourly' in mar_res and 'wave_height' in mar_res['hourly'] and mar_res['hourly']['wave_height'][0] is not None)
         if depth >= -1 and is_sea:
             depth = - (int(abs(lat * lon * 100000)) % 65 + 14)
-            
-        return sol_res, mar_res, depth
     except:
-        return None, None, -15.0
+        pass
 
+    return sol_res, mar_res, depth
 # --- ANA EKRAN TASARIMI ---
 st.sidebar.markdown(f"👤 **Kaptan:** @{st.session_state.current_user}")
 st.sidebar.divider()
