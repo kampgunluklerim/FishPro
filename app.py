@@ -339,7 +339,7 @@ if sol_data and 'hourly' in sol_data:
     st.markdown("""<div style="background-color: #e3f2fd; border-left: 6px solid #2e7d32; padding: 20px; border-radius: 10px; margin-top: 10px;"><h3 style="color: #1b5e20; margin-top: 0;">🌱 Sürdürülebilir Avcılık ve Geleceğimiz</h3><p style="color: #2e7d32; font-size: 16px; line-height: 1.6;"><b>"Küçük balık yoksa, büyük balık da yoktur."</b><br>Lütfen yasal limitlerin altındaki balıkları incitmeden suya iade edelim. Denizler ve göller sadece bizim değil; çocuklarımızın da kıyılarda takımlarıyla bu sporu yapabilmesi, o heyecanı yaşayabilmesi için vicdani limitlerimizi her zaman yasal limitlerin üstünde tutalım. Gittiğimiz kamp yerlerini ve meraları bulduğumuzdan çok daha temiz bırakalım. Unutmayın; en iyi avcı, doğaya en çok saygı duyandır! 🎣💙</p></div>""", unsafe_allow_html=True)
 
 else:
-    st.error("❌ Veriler şu an çekilemedi. Lütfen sayfayı yenileyin.")
+    st.error(f"Veriler şu an çekilemedi. Asıl Hata Detayı: {e}")
 
 st.sidebar.divider()
 if st.sidebar.button("Sistemden Çıkış"):
