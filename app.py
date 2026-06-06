@@ -351,7 +351,15 @@ if sol_data and 'hourly' in sol_data:
 
     # --- SÜRDÜRÜLEBİLİRLİK VE DOĞA BİLİNCİ MESAJI ---
     st.markdown("""<div style="background-color: #e3f2fd; border-left: 6px solid #2e7d32; padding: 20px; border-radius: 10px; margin-top: 10px;"><h3 style="color: #1b5e20; margin-top: 0;">🌱 Sürdürülebilir Avcılık ve Geleceğimiz</h3><p style="color: #2e7d32; font-size: 16px; line-height: 1.6;"><b>"Küçük balık yoksa, büyük balık da yoktur."</b><br>Lütfen yasal limitlerin altındaki balıkları incitmeden suya iade edelim. Denizler ve göller sadece bizim değil; çocuklarımızın da kıyılarda takımlarıyla bu sporu yapabilmesi, o heyecanı yaşayabilmesi için vicdani limitlerimizi her zaman yasal limitlerin üstünde tutalım. Gittiğimiz kamp yerlerini ve meraları bulduğumuzdan çok daha temiz bırakalım. Unutmayın; en iyi avcı, doğaya en çok saygı duyandır! 🎣💙</p></div>""", unsafe_allow_html=True)
-
+else:
+    st.markdown("""
+    <div style="background-color: #1c1c1e; border-left: 4px solid #ffcc00; padding: 20px; border-radius: 10px; margin-top: 15px;">
+        <h4 style="color: #ffcc00; margin-top: 0; margin-bottom: 10px;">📡 Uydu Veri Ağı Çevrimdışı</h4>
+        <p style="color: #e5e5ea; font-size: 15px; margin-bottom: 0;">
+            Ortak bulut ağındaki anlık trafik yoğunluğu sebebiyle şu an oşinografi sunucularına erişilemiyor. Harita ve mera sistemini kullanmaya devam edebilirsiniz; ağ bağlantısı sağlandığında taktik motoru ve grafikler otomatik olarak bu alana yüklenecektir.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 st.sidebar.divider()
 if st.sidebar.button("Sistemden Çıkış"):
     st.session_state.logged_in = False
