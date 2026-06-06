@@ -114,41 +114,42 @@ def get_wind_desc(deg):
 
 @st.cache_data(ttl=3600)
 def get_weather_and_depth(lat, lon):
-    lat = round(float(lat), 2)
-    lon = round(float(lon), 2)
-    
+    # API limitini korurken "İskele Hassasiyetini" (yaklaşık 110 metre) kaybetmemek için 3 haneye çıkardık!
+    lat = round(float(lat), 3)
+    lon = round(float(lon), 3)
     sol_res, mar_res, depth = None, None, -15.0
 
-    # 1. Hava Durumu Verisi (Saat dilimi İstanbul'a sabitlendi)
+    headers = {
+        "User-Agent": "FishPro/1.0 (Elite Marine Analysis; Custom Build)"
+    }
+
     try:
         sol_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&daily=sunrise,sunset&hourly=surface_pressure,wind_speed_10m,wind_direction_10m,temperature_2m,cloudcover&timezone=Europe%2FIstanbul"
-        sol_res = requests.get(sol_url, timeout=15).json()
-    except:
-        pass
+        sol_res = requests.get(sol_url, headers=headers, timeout=10).json()
+        if 'error' in sol_res: sol_res = None 
+    except: pass
 
-    # 2. Deniz ve Dalga Verisi (Saat dilimi İstanbul'a sabitlendi)
-    # 2. Deniz ve Dalga Verisi
     try:
         mar_url = f"https://marine-api.open-meteo.com/v1/marine?latitude={lat}&longitude={lon}&hourly=wave_height&timezone=Europe%2FIstanbul"
-        mar_res = requests.get(mar_url, timeout=15).json()
-    except:
-        pass
+        mar_res = requests.get(mar_url, headers=headers, timeout=10).json()
+        if 'error' in mar_res: mar_res = None
+    except: pass
 
-    # 3. Sonar Derinlik Verisi
+    # ETOPO1 yerine 15 kat daha hassas olan GEBCO2020 okyanus batimetri uydusuna geçiyoruz
     try:
-        elev_url = f"https://api.opentopodata.org/v1/etopo1?locations={lat},{lon}"
-        elev_res = requests.get(elev_url, timeout=3).json()
+        elev_url = f"https://api.opentopodata.org/v1/gebco2020?locations={lat},{lon}"
+        elev_res = requests.get(elev_url, headers=headers, timeout=5).json()
         depth = elev_res['results'][0]['elevation'] if 'results' in elev_res else 0
     except:
-        depth = -15.0 # Çökerse sistemi bozma, varsayılan değer ata
+        depth = -2.5 
 
-    # Deniz mi kara mı kontrolü
+    # O saçma matematik formülünü SİLDİK! 
+    # Eğer uydu kıyıyı kara sanırsa ama dalga verisi varsa (yani denizse), iskele/kıyı bandı kabul edip gerçekçi bir sığlık (2.5m) veriyoruz.
     try:
         is_sea = (mar_res is not None and 'hourly' in mar_res and 'wave_height' in mar_res['hourly'] and mar_res['hourly']['wave_height'][0] is not None)
         if depth >= -1 and is_sea:
-            depth = - (int(abs(lat * lon * 100000)) % 65 + 14)
-    except:
-        pass
+            depth = -2.5 
+    except: pass
 
     return sol_res, mar_res, depth
 # --- ANA EKRAN TASARIMI ---
