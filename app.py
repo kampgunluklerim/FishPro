@@ -114,38 +114,64 @@ def get_wind_desc(deg):
 
 @st.cache_data(ttl=3600)
 def get_weather_and_depth(lat, lon):
-    lat = round(float(lat), 2)
-    lon = round(float(lon), 2)
+    lat = round(float(lat), 3)
+    lon = round(float(lon), 3)
     sol_res, mar_res, depth = None, None, -15.0
 
-    # Sistemi jenerik bir bulut botu gibi değil, özel bir uygulama olarak tanıtıyoruz
     headers = {
         "User-Agent": "FishPro/1.0 (Elite Marine Analysis; Custom Build)"
     }
 
+    # 1. HAVA DURUMU: Artık tamamen sana özel OpenWeatherMap VIP Anahtarınla çekiliyor!
     try:
-        sol_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&daily=sunrise,sunset&hourly=surface_pressure,wind_speed_10m,wind_direction_10m,temperature_2m,cloudcover&timezone=Europe%2FIstanbul"
-        sol_res = requests.get(sol_url, headers=headers, timeout=10).json()
-        if 'error' in sol_res: sol_res = None 
-    except: pass
+        owm_key = "12242c0557a4f5069788ee589cdc51e0"
+        owm_url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={owm_key}&units=metric"
+        owm_data = requests.get(owm_url, timeout=10).json()
+        
+        if str(owm_data.get('cod')) == "200":
+            # FishPro UI'ı bozulmasın diye OpenWeatherMap verisini eski formata çeviren akıllı adaptör
+            sol_res = {
+                'daily': {'sunrise': [], 'sunset': []},
+                'hourly': {'surface_pressure': [], 'wind_speed_10m': [], 'wind_direction_10m': [], 'temperature_2m': [], 'cloudcover': []}
+            }
+            
+            sr_dt = datetime.fromtimestamp(owm_data['city']['sunrise'])
+            ss_dt = datetime.fromtimestamp(owm_data['city']['sunset'])
+            for i in range(3):
+                sol_res['daily']['sunrise'].append((sr_dt + timedelta(days=i)).strftime('%Y-%m-%dT%H:%M'))
+                sol_res['daily']['sunset'].append((ss_dt + timedelta(days=i)).strftime('%Y-%m-%dT%H:%M'))
+                
+            # 3 saatlik verileri saatliğe genişletiyoruz (48 saatlik grafiklerin dolması için)
+            for item in owm_data['list']:
+                for _ in range(3):
+                    sol_res['hourly']['surface_pressure'].append(item['main']['pressure'])
+                    sol_res['hourly']['wind_speed_10m'].append(item['wind']['speed'] * 3.6) # m/s'yi km/h'ye çeviriyoruz
+                    sol_res['hourly']['wind_direction_10m'].append(item['wind']['deg'])
+                    sol_res['hourly']['temperature_2m'].append(item['main']['temp'])
+                    sol_res['hourly']['cloudcover'].append(item['clouds']['all'])
+    except:
+        pass
 
+    # 2. DENİZ VE DALGA VERİSİ (Limitleri yuvarlayarak çözdüğümüz Marine API)
     try:
         mar_url = f"https://marine-api.open-meteo.com/v1/marine?latitude={lat}&longitude={lon}&hourly=wave_height&timezone=Europe%2FIstanbul"
         mar_res = requests.get(mar_url, headers=headers, timeout=10).json()
         if 'error' in mar_res: mar_res = None
     except: pass
 
+    # 3. YÜKSEK ÇÖZÜNÜRLÜKLÜ GEBCO DERİNLİK UYDUSU
     try:
-        elev_url = f"https://api.opentopodata.org/v1/etopo1?locations={lat},{lon}"
+        elev_url = f"https://api.opentopodata.org/v1/gebco2020?locations={lat},{lon}"
         elev_res = requests.get(elev_url, headers=headers, timeout=5).json()
         depth = elev_res['results'][0]['elevation'] if 'results' in elev_res else 0
     except:
-        depth = -15.0
+        depth = -2.5 
 
+    # Kıyı/İskele düzeltmesi
     try:
         is_sea = (mar_res is not None and 'hourly' in mar_res and 'wave_height' in mar_res['hourly'] and mar_res['hourly']['wave_height'][0] is not None)
         if depth >= -1 and is_sea:
-            depth = - (int(abs(lat * lon * 100000)) % 65 + 14)
+            depth = -2.5 
     except: pass
 
     return sol_res, mar_res, depth
